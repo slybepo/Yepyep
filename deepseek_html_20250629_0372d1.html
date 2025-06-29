@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Cheat Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --dark: #1a1a2e;
+            --light: #f1f1f1;
+            --danger: #ff4a4a;
+            --success: #4aff6b;
+            --warning: #ffb84a;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 90%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-container {
+            width: 100%;
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a5bff;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(74, 107, 255, 0.1);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #ff3a3a;
+        }
+
+        .btn-github {
+            background-color: #333;
+            color: white;
+        }
+
+        .btn-github:hover {
+            background-color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .auth-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .auth-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        .card {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .hash-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .hash-active {
+            border-left: 4px solid var(--success);
+        }
+
+        .hash-text {
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .hash-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(74, 255, 107, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--gray);
+        }
+
+        .hash-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .hash-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .hash-item:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .hash-icon {
+            margin-right: 1rem;
+            color: var(--gray);
+        }
+
+        .hash-content {
+            flex: 1;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .hash-actions {
+            position: relative;
+        }
+
+        .hash-dropdown-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .hash-dropdown-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .hash-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--dark);
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-width: 150px;
+            z-index: 10;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hash-dropdown.show {
+            display: block;
+        }
+
+        .hash-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hash-dropdown-item:hover {
+            background-color: rgba(74, 107, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--dark);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(255, 74, 74, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .alert-success {
+            background-color: rgba(74, 255, 107, 0.1);
+            border-left: 4px solid var(--success);
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .auth-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Authentication Container -->
+        <div class="auth-container" id="authContainer">
+            <div id="loginForm">
+                <h2 class="auth-title">Login to Anti-Cheat</h2>
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password">
+                </div>
+                <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Login</button>
+                <div class="divider">or</div>
+                <button id="githubLoginBtn" class="btn btn-github" style="width: 100%;">
+                    <i class="fab fa-github"></i> Login with GitHub
+                </button>
+                <div class="auth-footer">
+                    Don't have an account? <span class="auth-link" id="showRegister">Register</span>
+                </div>
+                <div id="loginError" class="alert alert-danger" style="display: none;"></div>
+            </div>
+
+            <div id="registerForm" style="display: none;">
+                <h2 class="auth-title">Create Account</h2>
+                <div class="form-group">
+                    <label for="registerEmail" class="form-label">Email</label>
+                    <input type="email" id="registerEmail" class="form-control" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword" class="form-label">Password</label>
+                    <input type="password" id="registerPassword" class="form-control" placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Confirm your password">
+                </div>
+                <button id="registerBtn" class="btn btn-primary" style="width: 100%;">Register</button>
+                <div class="auth-footer">
+                    Already have an account? <span class="auth-link" id="showLogin">Login</span>
+                </div>
+                <div id="registerError" class="alert alert-danger" style="display: none;"></div>
+                <div id="registerSuccess" class="alert alert-success" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Container -->
+        <div class="dashboard-container" id="dashboardContainer">
+            <div class="header">
+                <div class="logo">Anti-Cheat Dashboard</div>
+                <button id="logoutBtn" class="btn btn-outline">Logout</button>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Current Assembly Hash</h3>
+                <div id="currentHashDisplay" class="hash-display hash-active">
+                    <div class="hash-text">No hash selected</div>
+                    <div class="hash-status status-active">ACTIVE</div>
+                </div>
+                <button id="addHashBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Hash
+                </button>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Hash Management</h3>
+                <div id="hashesList" class="hash-list">
+                    <!-- Hashes will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Hash Modal -->
+    <div class="modal" id="addHashModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Assembly Hash</h3>
+                <button class="modal-close" id="closeAddHashModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="hashInput" class="form-label">Assembly-CSharp.dll Hash</label>
+                <input type="text" id="hashInput" class="form-control" placeholder="Enter the SHA-256 hash">
+            </div>
+            <button id="saveHashBtn" class="btn btn-primary">Save Hash</button>
+            <div id="hashError" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
