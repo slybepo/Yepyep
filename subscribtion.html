@@ -422,7 +422,7 @@
         const db = firebase.firestore();
 
         // Stripe Configuration
-        const stripe = Stripe('pk_test_your_stripe_publishable_key'); // Replace with your Stripe key
+        const stripe = Stripe('pk_live_51RI74oATmCSiLfdyySIIEUgxd6thi1IW7UdCEJaKez0DmH3TBvXrvS6U3XTVJcoBrDCyBw3oxP8lZJ5CAirR5HR300CdgGGXic'); // Replace with your Stripe key
         let elements;
         let cardElement;
         let selectedPlan = null;
@@ -483,7 +483,7 @@
 
             try {
                 // Create payment intent on your server (you'll need to implement this)
-                const response = await fetch('https://your-server.com/create-subscription', {
+                const response = await fetch('https://hash-anti.dreamweave.lo/create-subscription', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
