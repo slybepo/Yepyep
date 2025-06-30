@@ -480,41 +480,36 @@
 
             submitPaymentBtn.disabled = true;
             submitPaymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+try {
+    const response = await fetch('https://your-server.com/create-subscription', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            plan: selectedPlan,
+            price: selectedPrice,
+            email: email,
+            userId: user.uid
+        }),
+    });
 
-            try {
-                // Create payment intent on your server (you'll need to implement this)
-                const response = await fetch('https://hash-anti.dreamweave.lol/create-subscription', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        plan: selectedPlan,
-                        price: selectedPrice,
-                        email: email,
-                        userId: user.uid
-                    }),
-                });
+    // First check if the response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Expected JSON but got: ${text.substring(0, 100)}...`);
+    }
 
-                const data = await response.json();
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                // Confirm the payment with Stripe
-                const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
-                    payment_method: {
-                        card: cardElement,
-                        billing_details: {
-                            email: email,
-                        },
-                    },
-                });
-
-                if (error) {
-                    throw error;
-                }
+    const data = await response.json();
+    // ... rest of your code
+} catch (error) {
+    console.error('Fetch error:', error);
+    showPaymentResult(`Payment processing error: ${error.message}`, 'error');
+    submitPaymentBtn.disabled = false;
+    submitPaymentBtn.innerHTML = '<i class="fas fa-lock"></i> Subscribe Now';
+}
 
                 // Payment succeeded - create Firestore record
                 await db.collection('subscriptions').doc(paymentIntent.id).set({
@@ -551,7 +546,7 @@
             }
         });
 
-        // Show payment result
+  // Show payment result
         function showPaymentResult(message, type) {
             paymentResult.textContent = message;
             paymentResult.className = type;
