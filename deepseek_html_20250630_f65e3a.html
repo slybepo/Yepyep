@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureGuard Anti-Cheat | Game Security Solution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --dark: #1a1a2e;
+            --light: #f1f1f1;
+            --danger: #ff4a4a;
+            --success: #4aff6b;
+            --warning: #ffb84a;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 90%);
+        }
+
+        /* Navigation */
+        nav {
+            background-color: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .auth-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            border-color: var(--primary);
+        }
+
+        .auth-dropdown {
+            position: absolute;
+            right: 2rem;
+            top: 4rem;
+            background-color: var(--dark);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            min-width: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            z-index: 1001;
+        }
+
+        .auth-dropdown.show {
+            display: block;
+        }
+
+        .auth-dropdown-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .auth-dropdown-item:hover {
+            background-color: rgba(74, 107, 255, 0.1);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--primary), #6a5acd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a5bff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 107, 255, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            margin-left: 1rem;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(74, 107, 255, 0.1);
+        }
+
+        /* Features Section */
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .feature-desc {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Setup Guide */
+        .setup-guide {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+        }
+
+        .step-desc {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 1rem;
+            font-family: monospace;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .download-card {
+            background-color: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .download-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .version-info {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .auth-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-container {
+            background-color: rgba(26, 26, 46, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .auth-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .auth-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .auth-link {
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--gray);
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        .btn-github {
+            background-color: #333;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-github:hover {
+            background-color: #222;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: rgba(255, 74, 74, 0.1);
+            border-left: 4px solid var(--danger);
+            color: var(--danger);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .step {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="/" class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>SecureGuard</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="#features"><i class="fas fa-star"></i> Features</a>
+            <a href="#setup"><i class="fas fa-cogs"></i> Setup</a>
+            <a href="#download"><i class="fas fa-download"></i> Download</a>
+            <a href="/onboarding"><i class="fas fa-rocket"></i> Onboarding</a>
+        </div>
+
+        <div class="auth-section">
+            <img src="https://www.gravatar.com/avatar/default?s=200&d=mp" alt="User" class="user-avatar" id="userAvatar">
+        </div>
+
+        <div class="auth-dropdown" id="authDropdown">
+            <div class="auth-dropdown-item" id="loginDropdownBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </div>
+            <div class="auth-dropdown-item" id="registerDropdownBtn">
+                <i class="fas fa-user-plus"></i>
+                <span>Register</span>
+            </div>
+            <div class="auth-dropdown-item" id="logoutDropdownBtn" style="display: none;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Advanced Anti-Cheat Solution for Unity Games</h1>
+            <p>SecureGuard protects your multiplayer games from hackers, cheaters, and exploiters with our state-of-the-art detection system and memory integrity checks.</p>
+            <div>
+                <a href="#download" class="btn btn-primary">
+                    <i class="fas fa-download"></i> Download Now
+                </a>
+                <a href="/onboarding" class="btn btn-outline">
+                    <i class="fas fa-rocket"></i> Get Started
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+            <h2 class="section-title">
+                <i class="fas fa-star"></i>
+                <span>Key Features</span>
+            </h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                    <h3 class="feature-title">Memory Integrity Checks</h3>
+                    <p class="feature-desc">Detects and prevents memory editing tools like Cheat Engine by verifying game memory signatures.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="feature-title">Assembly Validation</h3>
+                    <p class="feature-desc">Validates Assembly-CSharp.dll hashes to detect modified game files and DLL injections.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="feature-title">Network Protection</h3>
+                    <p class="feature-desc">Prevents packet spoofing, speed hacks, and other network-based exploits.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h3 class="feature-title">Behavior Analysis</h3>
+                    <p class="feature-desc">AI-powered detection of abnormal player behavior patterns.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">Performance Optimized</h3>
+                    <p class="feature-desc">Low overhead design that won't impact your game's performance.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3 class="feature-title">Cloud Management</h3>
+                    <p class="feature-desc">Manage your anti-cheat settings and view reports from our web dashboard.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Setup Guide -->
+        <section id="setup">
+            <h2 class="section-title">
+                <i class="fas fa-cogs"></i>
+                <span>Unity Setup Guide</span>
+            </h2>
+
+            <div class="setup-guide">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Download the Package</h3>
+                        <p class="step-desc">Download the SecureGuard Unity package from the download section below.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Import into Unity</h3>
+                        <p class="step-desc">In Unity, go to Assets > Import Package > Custom Package and select the downloaded file.</p>
+                        <img src="https://i.imgur.com/JkYl7YF.png" alt="Unity Import Package" class="screenshot">
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Add to Your Scene</h3>
+                        <p class="step-desc">Drag the SecureGuard prefab from the SecureGuard/Prefabs folder into your first scene.</p>
+                        <img src="https://i.imgur.com/8GtVvZx.png" alt="Add Prefab to Scene" class="screenshot">
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Configure Settings</h3>
+                        <p class="step-desc">Select the SecureGuard object in your hierarchy and configure the settings in the Inspector:</p>
+                        <div class="code-block">
+                            // Example configuration
+                            public string gameId = "YOUR_GAME_ID";
+                            public bool enableMemoryChecks = true;
+                            public float checkInterval = 5.0f;
+                        </div>
+                        <img src="https://i.imgur.com/9QZ8w2L.png" alt="Configure Settings" class="screenshot">
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Initialize in Code</h3>
+                        <p class="step-desc">Initialize SecureGuard in your game manager script:</p>
+                        <div class="code-block">
+                            using SecureGuard;
+
+                            void Start() {
+                                SecureGuardManager.Initialize();
+                                SecureGuardManager.OnCheatDetected += HandleCheatDetection;
+                            }
+
+                            void HandleCheatDetection(string cheatType) {
+                                // Handle the cheat detection (disconnect player, show message, etc.)
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section id="download" class="download-section">
+            <h2 class="section-title">
+                <i class="fas fa-download"></i>
+                <span>Download Package</span>
+            </h2>
+
+            <div class="download-card">
+                <h3 class="download-title">SecureGuard for Unity</h3>
+                <p class="version-info">Version 1.2.0 | Compatible with Unity 2019.4+</p>
+                <a href="#" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-download"></i> Download Unity Package
+                </a>
+                <p style="margin-top: 1rem; color: var(--gray);">File size: 4.7MB | SHA-256: a1b2c3...z9</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2023 SecureGuard Anti-Cheat. All rights reserved.</p>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h3 class="auth-title" id="authModalTitle">Login</h3>
+                <button class="auth-close" id="authModalClose">&times;</button>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="loginTab">Login</div>
+                <div class="auth-tab" id="registerTab">Register</div>
+            </div>
+
+            <div class="auth-content active" id="loginContent">
+                <div class="alert alert-danger" id="loginError"></div>
+                <div class="form-group">
+                    <label for="loginEmail" class="form-label">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password">
+                </div>
+                <button id="loginBtn" class="btn btn-primary" style="width: 100%;">Login</button>
+                <div class="divider">or</div>
+                <button id="githubLoginBtn" class="btn btn-github">
+                    <i class="fab fa-github"></i> Login with GitHub
+                </button>
+                <div class="auth-footer">
+                    Don't have an account? <span class="auth-link" id="showRegisterLink">Register</span>
+                </div>
+            </div>
+
+            <div class="auth-content" id="registerContent">
+                <div class="alert alert-danger" id="registerError"></div>
+                <div class="form-group">
+                    <label for="registerEmail" class="form-label">Email</label>
+                    <input type="email" id="registerEmail" class="form-control" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword" class="form-label">Password</label>
+                    <input type="password" id="registerPassword" class="form-control" placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Confirm your password">
+                </div>
+                <button id="registerBtn" class="btn btn-primary" style="width: 100%;">Register</button>
+                <div class="auth-footer">
+                    Already have an account? <span class="auth-link" id="showLoginLink">Login</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase and App JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const userAvatar = document.getElementById('userAvatar');
+        const authDropdown = document.getElementById('authDropdown');
+        const loginDropdownBtn = document.getElementById('loginDropdownBtn');
+        const registerDropdownBtn = document.getElementById('registerDropdownBtn');
+        const logoutDropdownBtn = document.getElementById('logoutDropdownBtn');
+        const authModal = document.getElementById('authModal');
+        const authModalClose = document.getElementById('authModalClose');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginContent = document.getElementById('loginContent');
+        const registerContent = document.getElementById('registerContent');
+        const showRegisterLink = document.getElementById('showRegisterLink');
+        const showLoginLink = document.getElementById('showLoginLink');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const githubLoginBtn = document.getElementById('githubLoginBtn');
+        const loginError = document.getElementById('loginError');
+        const registerError = document.getElementById('registerError');
+
+        // Toggle auth dropdown
+        userAvatar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            authDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            authDropdown.classList.remove('show');
+        });
+
+        // Open auth modal
+        loginDropdownBtn.addEventListener('click', () => {
+            authModal.classList.add('show');
+            showLoginTab();
+            authDropdown.classList.remove('show');
+        });
+
+        registerDropdownBtn.addEventListener('click', () => {
+            authModal.classList.add('show');
+            showRegisterTab();
+            authDropdown.classList.remove('show');
+        });
+
+        // Close auth modal
+        authModalClose.addEventListener('click', () => {
+            authModal.classList.remove('show');
+        });
+
+        // Switch between login/register tabs
+        function showLoginTab() {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginContent.classList.add('active');
+            registerContent.classList.remove('active');
+        }
+
+        function showRegisterTab() {
+            loginTab.classList.remove('active');
+            registerTab.classList.add('active');
+            loginContent.classList.remove('active');
+            registerContent.classList.add('active');
+        }
+
+        loginTab.addEventListener('click', showLoginTab);
+        registerTab.addEventListener('click', showRegisterTab);
+        showRegisterLink.addEventListener('click', showRegisterTab);
+        showLoginLink.addEventListener('click', showLoginTab);
+
+        // Login with email/password
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError(loginError, 'Please fill in all fields');
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    updateUserUI(userCredential.user);
+                    authModal.classList.remove('show');
+                })
+                .catch((error) => {
+                    showError(loginError, error.message);
+                });
+        });
+
+        // Register with email/password
+        registerBtn.addEventListener('click', () => {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (!email || !password || !confirmPassword) {
+                showError(registerError, 'Please fill in all fields');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError(registerError, 'Passwords do not match');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError(registerError, 'Password should be at least 6 characters');
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Create user document in Firestore
+                    return db.collection('users').doc(userCredential.user.uid).set({
+                        email: email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                })
+                .then(() => {
+                    updateUserUI(auth.currentUser);
+                    authModal.classList.remove('show');
+                    showLoginTab();
+                })
+                .catch((error) => {
+                    showError(registerError, error.message);
+                });
+        });
+
+        // Login with GitHub
+        githubLoginBtn.addEventListener('click', () => {
+            const provider = new firebase.auth.GithubAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    // Check if user exists in Firestore
+                    const userRef = db.collection('users').doc(result.user.uid);
+                    userRef.get().then((doc) => {
+                        if (!doc.exists) {
+                            // Create user document if it doesn't exist
+                            userRef.set({
+                                email: result.user.email,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                githubUsername: result.additionalUserInfo.username,
+                                photoURL: result.user.photoURL
+                            });
+                        }
+                        updateUserUI(result.user);
+                        authModal.classList.remove('show');
+                    });
+                })
+                .catch((error) => {
+                    showError(loginError, error.message);
+                });
+        });
+
+        // Logout
+        logoutDropdownBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                userAvatar.src = "https://www.gravatar.com/avatar/default?s=200&d=mp";
+                logoutDropdownBtn.style.display = 'none';
+                loginDropdownBtn.style.display = 'block';
+                registerDropdownBtn.style.display = 'block';
+            });
+        });
+
+        // Update UI based on auth state
+        function updateUserUI(user) {
+            if (user) {
+                // User is signed in
+                if (user.photoURL) {
+                    userAvatar.src = user.photoURL;
+                } else {
+                    // Use Gravatar as fallback
+                    const emailHash = md5(user.email.trim().toLowerCase());
+                    userAvatar.src = `https://www.gravatar.com/avatar/${emailHash}?s=200&d=retro`;
+                }
+                
+                logoutDropdownBtn.style.display = 'block';
+                loginDropdownBtn.style.display = 'none';
+                registerDropdownBtn.style.display = 'none';
+            }
+        }
+
+        // Show error message
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                updateUserUI(user);
+            } else {
+                userAvatar.src = "https://www.gravatar.com/avatar/default?s=200&d=mp";
+                logoutDropdownBtn.style.display = 'none';
+                loginDropdownBtn.style.display = 'block';
+                registerDropdownBtn.style.display = 'block';
+            }
+        });
+
+        // Simple MD5 function for Gravatar (not for security purposes)
+        function md5(string) {
+            return CryptoJS.MD5(string).toString();
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>
