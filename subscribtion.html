@@ -583,7 +583,7 @@ submitPaymentBtn.addEventListener('click', async () => {
             stripeCustomerId: data.customerId,
             periodStart: firebase.firestore.Timestamp.now(),
             periodEnd: firebase.firestore.Timestamp.fromDate(
-                new Date(new Date().setMonth(new Date().getMonth() + 1))
+                new Date(new Date().setMonth(new Date().getMonth() + 1)))
         });
 
         // Update user document
