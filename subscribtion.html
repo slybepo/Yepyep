@@ -462,9 +462,86 @@
                 }
             });
         });
+// Payment submission handler
+document.getElementById('submit-payment').addEventListener('click', async function() {
+  const submitBtn = this;
+  const paymentResult = document.getElementById('payment-result');
+  
+  try {
+    // Get form data
+    const email = document.getElementById('email').value;
+    const user = firebase.auth().currentUser;
+    const plan = document.querySelector('.plan-card.selected').dataset.plan;
+    const price = document.querySelector('.plan-card.selected').dataset.price;
 
+    // Validate inputs
+    if (!user) throw new Error('Please sign in first');
+    if (!email) throw new Error('Please enter your email');
+    if (!plan || !price) throw new Error('Please select a plan');
+
+    // Disable button during processing
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    // Get Firebase auth token
+    const token = await user.getIdToken();
+
+    // Make the API request
+    const response = await fetch('https://us-central1-nexaverse-eeb07.cloudfunctions.net/createSubscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        plan,
+        price,
+        email,
+        userId: user.uid
+      })
+    });
+
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const errorText = await response.text();
+      throw new Error(`Server error: ${errorText.substring(0, 100)}`);
+    }
+
+    const data = await response.json();
+
+    // Handle successful payment
+    if (data.status === 'success') {
+      paymentResult.textContent = 'Payment successful!';
+      paymentResult.className = 'success';
+      paymentResult.style.display = 'block';
+      
+      // Save to Firestore
+      await firebase.firestore().collection('subscriptions').doc(data.paymentId).set({
+        userId: user.uid,
+        plan,
+        price,
+        status: 'active',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      
+      // Redirect after 2 seconds
+      setTimeout(() => window.location.href = '/onboarding', 2000);
+    } else {
+      throw new Error(data.message || 'Payment failed');
+    }
+  } catch (error) {
+    console.error('Payment error:', error);
+    paymentResult.textContent = error.message;
+    paymentResult.className = 'error';
+    paymentResult.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-lock"></i> Subscribe Now';
+  }
+});
         // Handle Payment Submission
-        submitPaymentBtn.addEventListener('click', async () => {
+       /* submitPaymentBtn.addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const user = auth.currentUser;
 
@@ -558,7 +635,7 @@
             setTimeout(() => {
                 paymentResult.style.display = 'none';
             }, 5000);
-        }
+        }*/
 
         // Auth state listener
         auth.onAuthStateChanged((user) => {
