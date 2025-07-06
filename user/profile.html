@@ -257,6 +257,268 @@
     <script>
         // ... (keep all your existing JavaScript) ...
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMUi291fwb-HSxlGPQMxdEJGUTiOOvFBs",
+            authDomain: "nexaverse-eeb07.firebaseapp.com",
+            projectId: "nexaverse-eeb07",
+            storageBucket: "nexaverse-eeb07.appspot.com",
+            messagingSenderId: "686342300627",
+            appId: "1:686342300627:web:90522d8f1129fb00b08526",
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const userAvatar = document.getElementById('userAvatar');
+        const usernameText = document.getElementById('usernameText');
+        const userDescription = document.getElementById('userDescription');
+        const editBtn = document.getElementById('editBtn');
+        const toggleEditBtn = document.getElementById('toggleEditBtn');
+        const editForm = document.getElementById('editForm');
+        const editUsername = document.getElementById('editUsername');
+        const editDescription = document.getElementById('editDescription');
+        const editAvatar = document.getElementById('editAvatar');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        const adminMenu = document.getElementById('adminMenu');
+        const adminMenuBtn = document.getElementById('adminMenuBtn');
+        const adminDropdown = document.getElementById('adminDropdown');
+        const banOption = document.getElementById('banOption');
+        const manageRolesOption = document.getElementById('manageRolesOption');
+        const deleteAccountOption = document.getElementById('deleteAccountOption');
+        const banModal = document.getElementById('banModal');
+        const rolesModal = document.getElementById('rolesModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelBanBtn = document.getElementById('cancelBanBtn');
+        const confirmBanBtn = document.getElementById('confirmBanBtn');
+        const cancelRolesBtn = document.getElementById('cancelRolesBtn');
+        const confirmRolesBtn = document.getElementById('confirmRolesBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const deleteConfirmation = document.getElementById('deleteConfirmation');
+
+        // Global variables
+        let currentUserId = null;
+        let isAdmin = false;
+        let isOwnProfile = false;
+
+        // Check URL for user ID
+        function getUserIdFromUrl() {
+            const path = window.location.pathname.split('/');
+            return path[path.length - 1] || null;
+        }
+
+        // Load user profile
+        async function loadProfile(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    usernameText.textContent = userData.username || 'Unnamed User';
+                    userDescription.textContent = userData.description || 'No description provided.';
+                    userAvatar.src = userData.avatarUrl || 'https://www.gravatar.com/avatar/default?s=200&d=mp';
+                    
+                    // Populate edit form
+                    if (isOwnProfile) {
+                        editUsername.value = userData.username || '';
+                        editDescription.value = userData.description || '';
+                        editAvatar.value = userData.avatarUrl || '';
+                    }
+                } else {
+                    console.error('User not found');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Check if current user is admin
+        async function checkAdminStatus(userId) {
+            try {
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    const currentUserDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (currentUserDoc.exists) {
+                        const currentUserData = currentUserDoc.data();
+                        isAdmin = currentUserData.roles && currentUserData.roles.includes('admin');
+                        if (isAdmin && !isOwnProfile) {
+                            adminMenu.style.display = 'block';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        // Initialize the page
+        async function init() {
+            currentUserId = getUserIdFromUrl();
+            const currentUser = auth.currentUser;
+            
+            if (currentUser) {
+                isOwnProfile = currentUser.uid === currentUserId;
+                if (isOwnProfile) {
+                    editBtn.style.display = 'inline-block';
+                }
+            }
+
+            if (currentUserId) {
+                await loadProfile(currentUserId);
+                await checkAdminStatus(currentUserId);
+            }
+
+            setupEventListeners();
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Edit profile toggle
+            toggleEditBtn.addEventListener('click', () => {
+                editForm.classList.toggle('show');
+            });
+
+            cancelEditBtn.addEventListener('click', () => {
+                editForm.classList.remove('show');
+            });
+
+            // Save profile changes
+            saveProfileBtn.addEventListener('click', async () => {
+                try {
+                    await db.collection('users').doc(currentUserId).update({
+                        username: editUsername.value,
+                        description: editDescription.value,
+                        avatarUrl: editAvatar.value
+                    });
+                    loadProfile(currentUserId);
+                    editForm.classList.remove('show');
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                }
+            });
+
+            // Admin menu
+            adminMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                adminDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', () => {
+                adminDropdown.classList.remove('show');
+            });
+
+            // Admin options
+            banOption.addEventListener('click', () => {
+                adminDropdown.classList.remove('show');
+                banModal.classList.add('show');
+            });
+
+            manageRolesOption.addEventListener('click', () => {
+                adminDropdown.classList.remove('show');
+                rolesModal.classList.add('show');
+            });
+
+            deleteAccountOption.addEventListener('click', () => {
+                adminDropdown.classList.remove('show');
+                deleteModal.classList.add('show');
+            });
+
+            // Modal cancel buttons
+            cancelBanBtn.addEventListener('click', () => {
+                banModal.classList.remove('show');
+            });
+
+            cancelRolesBtn.addEventListener('click', () => {
+                rolesModal.classList.remove('show');
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('show');
+            });
+
+            // Confirm actions
+            confirmBanBtn.addEventListener('click', async () => {
+                const duration = document.getElementById('banDuration').value;
+                const reason = document.getElementById('banReason').value;
+                
+                try {
+                    await db.collection('bans').doc(currentUserId).set({
+                        userId: currentUserId,
+                        duration: parseInt(duration),
+                        reason: reason,
+                        bannedBy: auth.currentUser.uid,
+                        bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    banModal.classList.remove('show');
+                    alert('User has been banned');
+                } catch (error) {
+                    console.error('Error banning user:', error);
+                }
+            });
+
+            confirmRolesBtn.addEventListener('click', async () => {
+                const newRole = document.getElementById('newRole').value;
+                
+                try {
+                    await db.collection('users').doc(currentUserId).update({
+                        roles: firebase.firestore.FieldValue.arrayUnion(newRole)
+                    });
+                    rolesModal.classList.remove('show');
+                    alert(`Role "${newRole}" added to user`);
+                } catch (error) {
+                    console.error('Error adding role:', error);
+                }
+            });
+
+            // Delete account confirmation
+            deleteConfirmation.addEventListener('input', () => {
+                confirmDeleteBtn.disabled = deleteConfirmation.value !== 'DELETE';
+            });
+
+            confirmDeleteBtn.addEventListener('click', async () => {
+                try {
+                    // Delete user data
+                    await db.collection('users').doc(currentUserId).delete();
+                    
+                    // Delete user's authentication (requires Cloud Function)
+                    // You would need to implement this in a Cloud Function
+                    // as client-side can't delete other users directly
+                    
+                    deleteModal.classList.remove('show');
+                    alert('Account has been deleted');
+                    window.location.href = '/';
+                } catch (error) {
+                    console.error('Error deleting account:', error);
+                }
+            });
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                init();
+            } else {
+                // User not logged in, still show profile but without edit/admin options
+                if (currentUserId) {
+                    loadProfile(currentUserId);
+                }
+            }
+        });
+
+        // Initialize with current URL
+        currentUserId = getUserIdFromUrl();
+        if (currentUserId) {
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                init();
+            } else {
+                auth.onAuthStateChanged(() => init());
+            }
+        }
         // Add this to update nav avatar
         function updateNavAvatar(photoURL) {
             const navAvatar = document.getElementById('navUserAvatar');
