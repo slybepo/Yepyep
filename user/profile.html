@@ -271,7 +271,13 @@
                 }
             }
         }
-
+// Highlight current page in nav
+document.querySelectorAll('.nav-links a').forEach(link => {
+    if (link.getAttribute('href') === window.location.pathname) {
+        link.style.color = 'var(--primary)';
+        link.style.fontWeight = '600';
+    }
+});
         // Update the loadProfile function to include this
         async function loadProfile(userId) {
             try {
