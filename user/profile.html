@@ -253,7 +253,35 @@
     </footer>
 
     <!-- ... (keep all your existing modals) ... -->
+<div class="modal" id="rolesModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Manage Roles</h2>
+            <div class="form-group">
+                <label for="newRole" class="form-label">Add Role</label>
+                <input type="text" id="newRole" class="form-control" placeholder="e.g., moderator">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="cancelRolesBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmRolesBtn">Add Role</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Delete Account Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Delete Account</h2>
+            <p>This action cannot be undone. All user data will be permanently deleted.</p>
+            <p>Type <strong>DELETE</strong> to confirm:</p>
+            <div class="form-group">
+                <input type="text" id="deleteConfirmation" class="form-control">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmDeleteBtn" disabled>Delete Account</button>
+            </div>
+        </div>
+    </div>
     <script>
         // ... (keep all your existing JavaScript) ...
 
